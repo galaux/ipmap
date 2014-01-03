@@ -36,10 +36,7 @@ def generate_geoip(in_fp, out_fp, regexp, capture_ip_pos, capture_nb, geoip_url)
 
     jsonarr = []
     for infos, ipaddress in countarray:
-      #initjson   = get_geoip(geoip_url, ipaddress)
-      print(ipaddress)
-      print(infos)
-      print("____")
+      initjson   = get_geoip(geoip_url, ipaddress)
       filledjson = fill_json(initjson, infos, countarray[infos, ipaddress])
       jsonarr.append(filledjson)
 
