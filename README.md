@@ -5,9 +5,9 @@ Extract IP from Unix log files and display them on a Google Map instance. This c
 
 Files
 =====
-- ipmapgen: Python 3 script used to parse a given log file and extract info such as an IP address (compulsory) and any other info that can be identified by a regular expression. Extracted info is group by IP addresses that are then checked against an online GeoIp service. Result is then stored as JSON (along with extracted remaining info if set by user). This script should be copied to `/usr/local/bin` or any other directory but preferably in `$PATH` and should be given execution rights.
-- cron_ipmapgen: Example cron script running the previous script and fixing read rights in case the HTTP server used to display the result is run with a different user. Needs to know the path of the previous script and the path of a JSON output file.
-- index.html: HTML/Javascript served by an HTTP server. Needs to know the path of the local JSON output file.
+- `ipmapgen:` Python 3 script used to parse a given log file and extract info such as an IP address (compulsory) and any other info that can be identified by a regular expression. Extracted info is group by IP addresses that are then checked against an online GeoIp service (Default service can be overriden). Result is then stored as JSON (along with extracted remaining info if set by user). This script should be copied to `/usr/local/bin` or any other directory but preferably in `$PATH` and should be given execution rights.
+- `cron_ipmapgen`: Example cron script running the previous script and fixing read rights in case the HTTP server used to display the result is run with a different user. Needs to know the path of the previous script and the path of a JSON output file.
+- `index.html`: HTML/Javascript served by an HTTP server. Needs to know the path of the local JSON output file.
 
 Usage
 =====
