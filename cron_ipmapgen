@@ -1,4 +1,13 @@
 #!/bin/bash
 
-/usr/local/bin/ipmapgen
-chown www-data:www-data /var/www/admin/ipmap/geoip.json
+JSON_FILE='/var/www/admin/ipmap/geoip.json'
+REGEXP=' Accepted [a-zA-Z]+ for ([a-zA-Z]+) from ([0-9\.]+)'
+
+/usr/local/bin/ipmapgen   \
+  --in  /var/log/auth.log \
+  --out ${JSON_FILE}      \
+  --regexp "${REGEXP}"      \
+  --capture-count  2      \
+  --ip-capture-pos 2
+
+chown www-data:www-data ${JSON_FILE}
