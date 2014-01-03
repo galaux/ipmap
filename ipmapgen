@@ -1,0 +1,93 @@
+#!/usr/bin/python3
+
+import json
+import urllib.request
+import re
+from collections import defaultdict
+import os
+import stat
+import argparse
+
+DEFAULT_GEOIP_URL='http://freegeoip.net/json/%s'
+
+def get_geoip(geoip_url, ipaddress):
+  content = urllib.request.urlopen(geoip_url % ipaddress, None, 20).read()
+  return json.loads(content.decode('utf8'))
+
+def fill_json(initjson, infos, count):
+  initjson['infos'] = infos
+  initjson['count'] = count
+  return initjson
+
+def generate_geoip(in_fp, out_fp, regexp, capture_ip_pos, capture_nb, geoip_url):
+  try:
+    countarray = defaultdict(int)
+    match_obj = re.compile(regexp)
+    for line in in_fp:
+      match = match_obj.search(line)
+      if match != None:
+        infosarr = []
+        for i in range(1, capture_nb):
+          infosarr.append(match.group(i))
+
+        infos = ', '.join(infosarr)
+        ipaddress = match.group(capture_ip_pos)
+        countarray[(infos, ipaddress)] += 1
+
+    jsonarr = []
+    for infos, ipaddress in countarray:
+      #initjson   = get_geoip(geoip_url, ipaddress)
+      print(ipaddress)
+      print(infos)
+      print("____")
+      filledjson = fill_json(initjson, infos, countarray[infos, ipaddress])
+      jsonarr.append(filledjson)
+
+    json.dump(jsonarr, out_fp)
+
+  except Exception as e:
+    print(e)
+
+def main():
+  parser = argparse.ArgumentParser(description='Generate a JSON file of geographical coordinates based on a log file')
+  parser.add_argument('-I', '--in', metavar = 'infile',
+                      help     = 'Input log file to parse',
+                      type     = argparse.FileType('r'),
+                      required = True,
+                      dest     = 'in_fp')
+  parser.add_argument('-O', '--out', metavar = 'outfile',
+                      help     = 'Output file to store generated JSON (overwritten)',
+                      type     = argparse.FileType('w'),
+                      required = True,
+                      dest     = 'out_fp')
+  parser.add_argument('-r', '--regexp', metavar = 'regexp',
+                      help     =   'A Python 3 valid regexp holding at least one capture group for '
+                                 + 'an IP address. If more than one capture group are provided, '
+                                 + 'then you must specify \'-c\' and \'-i\'. Supplementary capture '
+                                 + 'groups will be use to group matching IP addresses',
+                      required = True,
+                      dest     = 'regexp')
+  parser.add_argument('-c', '--capture-count', metavar = 'count',
+                      help     =  'Count of capture group in the provided \'regexp\'',
+                      type     = int,
+                      default  = 1,
+                      dest     = 'capture_gp_nb')
+  parser.add_argument('-i', '--ip-capture-pos', metavar = 'pos',
+                      help     =  'Position of the IP address capture group in \'regexp\'',
+                      type     = int,
+                      default  = 1,
+                      dest     = 'capture_ip_pos')
+  parser.add_argument('-u', '--url', metavar = 'geoip_url',
+                      help     =   'Override default URL of the GeoIP service to use. Use \'%%\' '
+                                 + 'to specify IP position',
+                      default  = DEFAULT_GEOIP_URL,
+                      dest     = 'geoip_url')
+  namespace = parser.parse_args()
+
+  generate_geoip(namespace.in_fp, namespace.out_fp, namespace.regexp,
+                 namespace.capture_gp_nb, namespace.capture_ip_pos,
+                 namespace.geoip_url)
+
+
+if __name__ == '__main__':
+  main()

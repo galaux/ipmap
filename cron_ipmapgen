@@ -1,0 +1,4 @@
+#!/bin/bash
+
+/usr/local/bin/ipmapgen
+chown www-data:www-data /var/www/admin/ipmap/geoip.json
